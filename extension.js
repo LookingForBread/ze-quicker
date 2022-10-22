@@ -31,11 +31,12 @@ function activate(context) {
 				}
 			}
 		).then((value) => {
-			create({
+			let data = {
 				context,
 				fileUri,
 				fileName: value
-			});
+			}
+			create(data);
 		})
 		//fileUri下创建文件夹
 		// vscode.workspace.fs.createDirectory(vscode.Uri.file(fileUri.fsPath + '/zbcp'));
@@ -84,14 +85,16 @@ function activate(context) {
 // This method is called when your extension is deactivated
 function deactivate() {}
 
-function addComponents({context,fileUri,componentsName="demo",labelName="demo"}) {
+
+function addComponents({componentsName="demo",labelName="demo"}) {
 	//找到当前焦点位置
 	let editor = vscode.window.activeTextEditor;
 	let position = editor.selection.active;
 	console.log(position);
 	//插入文本
 	editor.edit((editBuilder) => {
-		editBuilder.insert(position, `{
+		editBuilder.insert(position, 
+`{
 	tag: '${componentsName}',
 	label: 'label:',
 	key: 'username',
@@ -123,13 +126,75 @@ function create({context,fileUri,fileName='demo'}) {
 			}
 		}
 		createP.then(() => {
+			//1.处理fileName，将-转为驼峰
+			let fileNameArr = fileName.split('-');
+			let fileNameCamel = fileNameArr[0].substring(0, 1).toUpperCase() + fileNameArr[0].substring(1);
+			for (let i = 1; i < fileNameArr.length; i++) {
+				fileNameCamel += fileNameArr[i].substring(0, 1).toUpperCase() + fileNameArr[i].substring(1);
+			}
 			//读取options.js，并写入zbcp目录
-			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '/options.js')).then((data) => {
-				vscode.workspace.fs.writeFile(vscode.Uri.file(fileUri.fsPath + `/${fileName}/options.js`), data);
+			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '\\options.js')).then((data) => {
+				vscode.workspace.fs.writeFile(vscode.Uri.file(fileUri.fsPath + `\\${fileName}\\options.js`), data);
 			});
 			//读取demo.vue，并写入zbcp目录
-			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '/demo.vue')).then((data) => {
-				vscode.workspace.fs.writeFile(vscode.Uri.file(fileUri.fsPath + `/${fileName}/${fileName}.vue`), data);
+			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '\\demo.vue')).then((data) => {
+				//替换文件内容
+				let dataStr = data.toString();
+				dataStr = dataStr.replace(/Demo/g, fileNameCamel);
+				//转回buffer
+				let dataBuffer = Buffer.from(dataStr);
+				vscode.workspace.fs.writeFile(vscode.Uri.file(fileUri.fsPath + `\\${fileName}\\${fileName}.vue`), dataBuffer);
+			})
+			//读取api.js，并写入zbcp目录
+			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '\\api.js')).then((data) => {
+				//替换文件内容
+				let dataStr = data.toString();
+				dataStr = dataStr.replace(/Demo/g, fileNameCamel);
+				//转回buffer
+				let dataBuffer = Buffer.from(dataStr);
+				//写入文件
+				vscode.workspace.fs.writeFile(vscode.Uri.file(fileUri.fsPath + `\\${fileName}\\api.js`), dataBuffer);
+			})
+			//找到项目/src目录
+			let srcPath = fileUri.fsPath;
+			if(fileUri.fsPath.lastIndexOf('\src') != -1){
+				srcPath = fileUri.fsPath.substring(0, fileUri.fsPath.lastIndexOf('\src'));
+			}
+			//判断routes文件是否存在
+			vscode.workspace.fs.stat(vscode.Uri.file(srcPath + '\\src\\router\\routes.js')).then((data) => {
+				if(data.type == 1){
+					//读取api.js，并写入zbcp目录
+					vscode.workspace.fs.readFile(vscode.Uri.file(srcPath + '\\src\\router\\routes.js')).then((data) => {
+						//判断vue文件与src的相对路径
+						let vuePath = fileUri.fsPath + `\\${fileName}\\${fileName}.vue`
+						vuePath = vuePath.substring(vuePath.indexOf('src') + 4);
+						//右\替换为/
+						vuePath = vuePath.replace(/\\/g, '/');
+						//替换文件内容
+						let dataStr = data.toString();
+						//找到最后一个]的位置
+						let lastArrIndex = dataStr.lastIndexOf(']');
+						dataStr = dataStr.substring(0, lastArrIndex) + 
+`	{
+		path: '/${fileName}',
+		name: '${fileName}',
+		component: () => import('@/${vuePath}'),
+		meta: {
+			title: '${fileNameCamel}',
+		},
+	},
+]
+`;
+						//转回buffer
+						let dataBuffer = Buffer.from(dataStr);
+						//写入文件
+						vscode.workspace.fs.writeFile(vscode.Uri.file(srcPath + '/src/router/routes.js'), dataBuffer);
+					})
+				}
+			}).catch((error) => {
+				console.log('error :>> ', error);
+				//提示用户routes.js不存在
+				vscode.window.showErrorMessage(`未找到${srcPath + '\\src\\router\\routes.js'}`);
 			})
 		})
 	});
