@@ -2,7 +2,8 @@
   "name": "zequicker",
   "displayName": "zeQuicker",
   "description": "",
-  "version": "0.0.2",
+  "publisher": "YuCheng",
+  "version": "0.0.1",
   "engines": {
     "vscode": "^1.70.0"
   },
