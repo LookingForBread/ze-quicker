@@ -19,7 +19,18 @@ const state = reactive({
   editFn: updateDemo,
   deleteFn: deleteDemo,
   detailFn: getDemoDetail,
-  // multipleDelete: true,
+  showEditBtn: true,
+  showDeleteBtn: true,
+  // rowControl: {
+  //   showEditBtn: false,
+  //   showDelBtn: false
+  // },
+  permission: {//菜单管理中添加权限
+    add: 'system:user:list',
+    edit: 'system:user:list',
+    delete: 'system:user:list',
+    detail: 'system:user:list',
+  },
   pageInfo: { total: 0, base:{limit: 8,current: 1} },
 })
 

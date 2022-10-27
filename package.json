@@ -3,7 +3,7 @@
   "displayName": "zeQuicker",
   "description": "",
   "publisher": "YuCheng",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -11,15 +11,15 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:zequicker.zbcp",
+    "onCommand:zequicker.zbry",
     "onCommand:zequicker.insertComponent"
   ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "zequicker.zbcp",
-        "title": "新建页面-zbep"
+        "command": "zequicker.zbry",
+        "title": "新建页面-zbry"
       },
       {
         "command": "zequicker.insertComponent",
@@ -29,7 +29,7 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "zequicker.zbcp",
+          "command": "zequicker.zbry",
           "group": "navigation"
         }
       ],
@@ -42,7 +42,7 @@
     },
     "keybindings": [
       {
-        "command": "zequicker.zbcp",
+        "command": "zequicker.zbry",
         "key": "shift+alt+z",
         "mac": "shift+alt+z"
       },

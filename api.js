@@ -1,4 +1,4 @@
-import axios from '@/libs/api.request'
+import axios from '@/utils/request'
 // 查询分页数据：
 export const getDemoPage = (arg) => {
   return axios.request({

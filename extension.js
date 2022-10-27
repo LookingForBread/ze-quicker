@@ -17,7 +17,7 @@ function activate(context) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
-	let zbcp = vscode.commands.registerCommand('zequicker.zbcp', function (fileUri) {
+	let zbry = vscode.commands.registerCommand('zequicker.zbry', function (fileUri) {
 		//对话框
 		vscode.window.showInputBox(
 			{
@@ -39,7 +39,7 @@ function activate(context) {
 			create(data);
 		})
 		//fileUri下创建文件夹
-		// vscode.workspace.fs.createDirectory(vscode.Uri.file(fileUri.fsPath + '/zbcp'));
+		// vscode.workspace.fs.createDirectory(vscode.Uri.file(fileUri.fsPath + '/zbry'));
 	});
 	let insertComponent = vscode.commands.registerCommand('zequicker.insertComponent', function (fileUri) {
 		//对话框
@@ -78,7 +78,7 @@ function activate(context) {
 	});
 
 
-	context.subscriptions.push(zbcp);
+	context.subscriptions.push(zbry);
 	context.subscriptions.push(insertComponent);
 }
 
@@ -132,11 +132,11 @@ function create({context,fileUri,fileName='demo'}) {
 			for (let i = 1; i < fileNameArr.length; i++) {
 				fileNameCamel += fileNameArr[i].substring(0, 1).toUpperCase() + fileNameArr[i].substring(1);
 			}
-			//读取options.js，并写入zbcp目录
+			//读取options.js，并写入zbry目录
 			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '\\options.js')).then((data) => {
 				vscode.workspace.fs.writeFile(vscode.Uri.file(fileUri.fsPath + `\\${fileName}\\options.js`), data);
 			});
-			//读取demo.vue，并写入zbcp目录
+			//读取demo.vue，并写入zbry目录
 			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '\\demo.vue')).then((data) => {
 				//替换文件内容
 				let dataStr = data.toString();
@@ -145,7 +145,7 @@ function create({context,fileUri,fileName='demo'}) {
 				let dataBuffer = Buffer.from(dataStr);
 				vscode.workspace.fs.writeFile(vscode.Uri.file(fileUri.fsPath + `\\${fileName}\\${fileName}.vue`), dataBuffer);
 			})
-			//读取api.js，并写入zbcp目录
+			//读取api.js，并写入zbry目录
 			vscode.workspace.fs.readFile(vscode.Uri.file(context.extensionPath + '\\api.js')).then((data) => {
 				//替换文件内容
 				let dataStr = data.toString();
@@ -163,11 +163,11 @@ function create({context,fileUri,fileName='demo'}) {
 			//判断routes文件是否存在
 			vscode.workspace.fs.stat(vscode.Uri.file(srcPath + '\\src\\router\\routes.js')).then((data) => {
 				if(data.type == 1){
-					//读取api.js，并写入zbcp目录
+					//读取api.js，并写入zbry目录
 					vscode.workspace.fs.readFile(vscode.Uri.file(srcPath + '\\src\\router\\routes.js')).then((data) => {
 						//判断vue文件与src的相对路径
-						let vuePath = fileUri.fsPath + `\\${fileName}\\${fileName}.vue`
-						vuePath = vuePath.substring(vuePath.indexOf('src') + 4);
+						let vuePath = fileUri.fsPath + `\\${fileName}\\${fileName}`
+						vuePath = vuePath.substring(vuePath.indexOf('src\\views') + 10);
 						//右\替换为/
 						vuePath = vuePath.replace(/\\/g, '/');
 						//替换文件内容
@@ -176,12 +176,17 @@ function create({context,fileUri,fileName='demo'}) {
 						let lastArrIndex = dataStr.lastIndexOf(']');
 						dataStr = dataStr.substring(0, lastArrIndex) + 
 `	{
-		path: '/${fileName}',
-		name: '${fileName}',
-		component: () => import('@/${vuePath}'),
+		name: "${fileName}",
+		path: "${fileName}",
+		hidden: false,
+		component: "${vuePath}",
 		meta: {
-			title: '${fileNameCamel}',
-		},
+			title: "${fileNameCamel}",
+			// permission: '',
+			icon: "online",
+			noCache: false,
+			link: null
+		}
 	},
 ]
 `;
