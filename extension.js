@@ -90,24 +90,30 @@ function addComponents({componentsName="demo",labelName="demo"}) {
 	//找到当前焦点位置
 	let editor = vscode.window.activeTextEditor;
 	let position = editor.selection.active;
-	console.log(position);
+	//空格数量
+	let spaceNum = position._character;
+	let space = "";
+	for (let i = 0; i < spaceNum; i++) {
+		space += " ";
+	}
+	console.log('spaceNum :>> ', spaceNum);
 	//插入文本
 	editor.edit((editBuilder) => {
 		editBuilder.insert(position, 
 `{
-	tag: '${componentsName}',
-	label: 'label:',
-	key: 'username',
-	value: '${labelName}',
-	default: '',
-	attribute: {
-		// type: 'text',
-		placeholder: '请输入${labelName}',
-	},
-	rules: [
-		{ required: true, message: '请输入${labelName}', trigger: 'blur' },
-	],
-},`);
+${space+'	'}tag: '${componentsName}',
+${space+'	'}label: '${labelName}',
+${space+'	'}key: '参数key',
+${space+'	'}value: '',
+${space+'	'}default: '',
+${space+'	'}attribute: {
+${space+'		'}// type: 'text',
+${space+'		'}placeholder: '请输入${labelName}',
+${space+'	'}},
+${space+'	'}rules: [
+${space+'		'}{ required: true, message: '请输入${labelName}', trigger: 'blur' },
+${space+'	'}],
+${space}},`);
 	});
 }
 
